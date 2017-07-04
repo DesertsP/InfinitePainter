@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("InfinitePainter")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("无限画师")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Deserts")]
 [assembly: AssemblyProduct("InfinitePainter")]
-[assembly: AssemblyCopyright("Copyright ©  2017")]
+[assembly: AssemblyCopyright("Copyright ©  2017 panjunwen.com")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

@@ -1,6 +1,9 @@
 ﻿{
   "dependencies": {
-    "Microsoft.NETCore.UniversalWindowsPlatform": "5.1.0"
+    "Microsoft.NETCore.UniversalWindowsPlatform": "5.1.0",
+    "Microsoft.Toolkit.Uwp": "1.4.1",
+    "Microsoft.Toolkit.Uwp.UI.Controls": "1.4.1",
+    "Win2D.uwp": "1.21.0"
   },
   "frameworks": {
     "uap10.0": {}
