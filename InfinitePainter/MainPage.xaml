@@ -27,10 +27,14 @@
             <Grid x:Name="directContainer">
                 <Grid x:Name="myImageContainer">
                     <Image Name="backImage" ImageOpened="BackImage_Opened"/>
-                    <Viewbox>
+                    <!--Canvas for displaying selection UI.-->
+                    <!--<Canvas x:Name="shapeCanvas"  Width="1200" Height="800"/>-->
+                    <Canvas x:Name="selectionCanvas"/>
+                    <!--<Viewbox>-->
                         <!--<InkCanvas x:Name="inkCanvas"/>-->
-                        <InkCanvas x:Name="inkCanvas" Width="1200" Height="800" />
-                    </Viewbox>
+                    <InkCanvas x:Name="inkCanvas"/>
+                    <!--</Viewbox>-->
+                    <!--<Canvas Name="PointCanvas" Width="1200" Height="800"/>-->
                 </Grid>
             </Grid>
         </ScrollViewer>
@@ -48,9 +52,11 @@
             <AppBarButton Icon="ZoomOut" Label="缩小" Click="ZoomOut_Click"/>
             <AppBarButton Icon="Font" Label="文本"/>
             <AppBarButton Icon="Add" Label="元素" />
+            <AppBarSeparator></AppBarSeparator>
             <AppBarButton Icon="Undo" Label="撤销" Name="undoButton" Click="Undo_Click"/>
             <AppBarButton Icon="Redo" Label="重做" Name="redoButton" Click="Redo_Click" />
-            <AppBarButton Icon="Crop" Label="选择" />
+            <AppBarSeparator></AppBarSeparator>
+            <AppBarToggleButton IsChecked="False" x:Name="Move_Button" Icon="TouchPointer" Label="移动" Click="Move_Click"/>
             <AppBarButton Icon="Copy" Label="复制" Click="Copy_Click" />
             <AppBarButton Icon="Cut" Label="剪切" Click="Cut_Click" />
             <AppBarButton Icon="Paste" Label="粘贴" Click="Paste_Click" />

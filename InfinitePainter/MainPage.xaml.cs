@@ -18,6 +18,8 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using Windows.UI.Xaml.Media.Imaging;
+using Windows.UI.Xaml.Shapes;
+using System.Windows;
 
 namespace InfinitePainter
 {
@@ -31,13 +33,52 @@ namespace InfinitePainter
 
         //Backround image
         private StorageFile BACK_IMAGE;
-        
+
+        // Stroke selection tool.
+        private Polyline lasso;
+        // Stroke selection area.
+        private Rect boundingRect;
+        //
 
         public MainPage()
         {
             this.InitializeComponent();
             InitialInk();
             InitialMenu();
+            HISTORY_STROKES = new Stack<InkStroke>();
+
+        }
+
+        private void InitialInk()
+        {
+
+            InkPresenter myInkPresenter = this.inkCanvas.InkPresenter;
+            myInkPresenter.InputDeviceTypes =
+                Windows.UI.Core.CoreInputDeviceTypes.Pen |
+                Windows.UI.Core.CoreInputDeviceTypes.Mouse;
+            InkDrawingAttributes myAttributes = myInkPresenter.CopyDefaultDrawingAttributes();
+            myAttributes.DrawAsHighlighter = false;
+            myAttributes.IgnorePressure = false;
+            myAttributes.FitToCurve = true;
+            myInkPresenter.UpdateDefaultDrawingAttributes(myAttributes);
+
+            // 
+            inkCanvas.InkPresenter.InputProcessingConfiguration.RightDragAction =
+                InkInputRightDragAction.LeaveUnprocessed;
+            // Listen for unprocessed pointer events from modified input.
+            // The input is used to provide selection functionality.
+            inkCanvas.InkPresenter.UnprocessedInput.PointerPressed +=
+                UnprocessedInput_PointerPressed;
+            inkCanvas.InkPresenter.UnprocessedInput.PointerMoved +=
+                UnprocessedInput_PointerMoved;
+            inkCanvas.InkPresenter.UnprocessedInput.PointerReleased +=
+                UnprocessedInput_PointerReleased;
+
+            // Listen for new ink or erase strokes to clean up selection UI.
+            inkCanvas.InkPresenter.StrokeInput.StrokeStarted +=
+                StrokeInput_StrokeStarted;
+            inkCanvas.InkPresenter.StrokesErased +=
+                InkPresenter_StrokesErased;
         }
 
         private void OnMenuItemClick(object sender, ItemClickEventArgs e)
@@ -65,30 +106,27 @@ namespace InfinitePainter
             hamburgerMenuControl.IsPaneOpen = false;
         }
 
-        private void InitialInk()
-        {
-
-            InkPresenter myInkPresenter = this.inkCanvas.InkPresenter;
-            myInkPresenter.InputDeviceTypes =
-                Windows.UI.Core.CoreInputDeviceTypes.Pen |
-                Windows.UI.Core.CoreInputDeviceTypes.Mouse;
-            InkDrawingAttributes myAttributes = myInkPresenter.CopyDefaultDrawingAttributes();
-            myAttributes.DrawAsHighlighter = false;
-            myAttributes.IgnorePressure = false;
-            myAttributes.FitToCurve = true;
-            myInkPresenter.UpdateDefaultDrawingAttributes(myAttributes);
-            HISTORY_STROKES = new Stack<InkStroke>();
-        }
-
         private void BackImage_Opened(object sender, RoutedEventArgs e)
         {
             inkCanvas.Height = backImage.ActualHeight;
             inkCanvas.Width = backImage.ActualWidth;
+            selectionCanvas.Height = backImage.ActualHeight;
+            selectionCanvas.Width = backImage.ActualWidth;
         }
 
         private void Copy_Click(object sender, RoutedEventArgs e)
         {
-            foreach (InkStroke s in inkCanvas.InkPresenter.StrokeContainer.GetStrokes())
+            var strokes = inkCanvas.InkPresenter.StrokeContainer.GetStrokes();
+            foreach(var s in strokes)
+            {
+                if(s.Selected == true)
+                {
+                    inkCanvas.InkPresenter.StrokeContainer.CopySelectedToClipboard();
+                    return;
+                }
+
+            }
+            foreach (InkStroke s in strokes)
                 s.Selected = true;
             inkCanvas.InkPresenter.StrokeContainer.CopySelectedToClipboard();
         }
@@ -107,12 +145,20 @@ namespace InfinitePainter
 
         private void Delete_Click(object sender, RoutedEventArgs e)
         {
-            IReadOnlyList<InkStroke> strokes = inkCanvas.InkPresenter.StrokeContainer.GetStrokes();
+            var strokes = inkCanvas.InkPresenter.StrokeContainer.GetStrokes();
             if (strokes.Count > 0)
             {
-            
+                foreach (var s in strokes)
+                {
+                    if (s.Selected == true)
+                    {
+                        inkCanvas.InkPresenter.StrokeContainer.DeleteSelected();
+                        return;
+                    }
+
+                }
+
                 foreach (InkStroke s in strokes){
-                    HISTORY_STROKES.Push(s.Clone());
                     s.Selected = true;
                 }
                 inkCanvas.InkPresenter.StrokeContainer.DeleteSelected();
@@ -149,5 +195,6 @@ namespace InfinitePainter
                 inkCanvas.InkPresenter.StrokeContainer.AddStroke(HISTORY_STROKES.Pop());
             }
         }
+
     }
 }
